@@ -2,7 +2,7 @@
 Data block javascript package
 
 # Use
-
+``` js
 import { DataBlock } from '@zaxjs/data-block'
 ... 
   let dataBlock=new DataBlock({api:"http://localhost:8089/data-block-service-api/v1/open, key:"Y2wwemk4aWtnMDAwMjA4bDQ4c3VrZzB5bA=="}) // 建议配置为全局单例对象
@@ -15,7 +15,7 @@ import { DataBlock } from '@zaxjs/data-block'
     // code
   }
 ...
-  
+```
 
 ## APIs
 [API文档](https://github.com/zaxjs/data-block-javascript/tree/main/docs)
