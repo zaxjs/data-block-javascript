@@ -3,18 +3,24 @@ Data block javascript package
 
 # Use
 ``` js
-import { DataBlock } from '@zaxjs/data-block'
-... 
-  let dataBlock=new DataBlock({api:"http://localhost:8089/data-block-service-api/v1/open, key:"Y2wwemk4aWtnMDAwMjA4bDQ4c3VrZzB5bA=="}) // 建议配置为全局单例对象
-  const res = await dataBlock.getBlock([ "TEST_BLOCK" ], { showSysField: false , ttl: '5m', showGroupInfo:false, }).catch((err) => {
-    console.error('dataBlock.get', [ "TEST_BLOCK" ], err)
-    throw err
-  })
+let dataBlock=new DataBlock({api:"http://localhost:8089/data-block-service-api/v1/open", key:"Y2wwemk4aWtnMDAwMjA4bDQ4c3VrZzB5bA=="}) // 建议配置为全局单例对象
+const resBlock = await dataBlock.getBlock([ "TEST_BLOCK" ], { showSysField: false , ttl: '5m', showGroupInfo:false, }).catch((err) => {
+  console.error('dataBlock.getBlock', [ "TEST_BLOCK" ], err)
+  throw err
+})
 
-  if (res?.length) {
-    // code
-  }
-...
+if (resBlock?.length) {
+  // code
+}
+
+const resKv = await dataBlock.getKv([ "TEST_BLOCK" ], { showSysField: false , ttl: '5m', showGroupInfo:false, }).catch((err) => {
+  console.error('dataBlock.getKv', [ "TEST_BLOCK" ], err)
+  throw err
+})
+
+if (resKv?.length) {
+  // code
+}
 ```
 
 ## APIs
