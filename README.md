@@ -4,6 +4,7 @@ Data block javascript package
 # Use
 ``` js
 import { DataBlock } from '@zaxjs/data-block'
+
 let dataBlock=new DataBlock({api:"http://localhost:8089/data-block-service-api/v1/open", key:"Y2wwemk4aWtnMDAwMjA4bDQ4c3VrZzB5bA=="}) // 建议配置为全局单例对象
 const resBlock = await dataBlock.getBlock([ "TEST_BLOCK" ], { showSysField: false , ttl: '5m', showGroupInfo:false, }).catch((err) => {
   console.error('dataBlock.getBlock', [ "TEST_BLOCK" ], err)
