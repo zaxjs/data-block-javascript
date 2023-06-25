@@ -1,7 +1,7 @@
 /**
  * DataBlock Module
  * @module @zaxjs/data-block
- * @see https://github.com/zaxjs/data-block-javascript/-/tree/main/data-block
+ * @see https://github.com/zaxjs/data-block-javascript/blob/main/docs/README.md
  */
 
 import { AxiosRequestConfig, AxiosResponse } from 'axios'

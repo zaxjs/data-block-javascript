@@ -4,7 +4,7 @@
   "main": "lib/index.js",
   "module": "es/index.js",
   "typings": "types/index.d.ts",
-  "description": "@zaxjs/data-block",
+  "description": "Data block javascript package",
   "author": "jsonchou <jsonchou@qq.com>",
   "homepage": "https://github.com/zaxjs/data-block-javascript",
   "scripts": {
