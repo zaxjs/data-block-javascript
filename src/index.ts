@@ -8,7 +8,20 @@ import { AxiosRequestConfig, AxiosResponse } from 'axios'
 
 const APP_OPEN_KEY = `x-data-block-openkey`
 
-type BaseT = {
+type BaseKv = {
+  blockStatus?: any
+  sysId?: any
+  createdBy?: any
+  createdAt?: any
+  updatedBy?: any
+  updatedAt?: any
+  publishedBy?: any
+  publishedAt?: any
+  description?: any
+  syncAt?: any
+}
+
+type BaseBlock = {
   stage?: any
   isMultipleGroup?: any
   atUsers?: any
@@ -35,7 +48,7 @@ type BaseT = {
   syncAt?: any
 }
 
-export const distDataBlock = <T extends BaseT>(res: Record<string, T>, opt: Partial<DataBlocksOptions>): Record<string, T> => {
+export const distDataBlock = <T extends BaseBlock>(res: Record<string, T>, opt: Partial<DataBlocksOptions>): Record<string, T> => {
   let { showSysField, showGroupInfo } = opt
 
   var resAll = Object.values(res)
@@ -74,6 +87,30 @@ export const distDataBlock = <T extends BaseT>(res: Record<string, T>, opt: Part
   return res
 }
 
+export const distDataKv = <T extends BaseKv>(res: Record<string, T>, opt: Partial<DataBlocksOptions>): Record<string, T> => {
+  let { showSysField } = opt
+
+  var resAll = Object.values(res)
+  // 应用类型，源数据一并delete
+
+  resAll.map((item) => {
+    if (!showSysField) {
+      delete item?.blockStatus
+      delete item?.sysId
+      delete item?.createdBy
+      delete item?.createdAt
+      delete item?.updatedBy
+      delete item?.updatedAt
+      delete item?.publishedBy
+      delete item?.publishedAt
+      delete item?.description
+      delete item?.syncAt
+    }
+  })
+
+  return res
+}
+
 export interface DataBlocksInterface {
   key: string
   api: string
@@ -82,9 +119,9 @@ export interface DataBlocksInterface {
   ttl?: `${number}${'d' | 'h' | 'm' | 's'}`
   keyType?: 'kv' | 'block'
   taro?: any
-  get: <T extends BaseT>(codes: string | string[], options?: DataBlocksOptions) => Promise<Record<string, T>>
-  getBlock: <T extends BaseT>(codes: string | string[], options?: DataBlocksOptions) => Promise<Record<string, T>>
-  getKv: <T extends BaseT>(codes: string | string[], options?: DataBlocksOptions) => Promise<Record<string, T>>
+  get: <T extends BaseBlock | BaseKv>(codes: string | string[], options?: DataBlocksOptions) => Promise<Record<string, T> | null>
+  getBlock: <T extends BaseBlock>(codes: string | string[], options?: DataBlocksOptions) => Promise<Record<string, T> | null>
+  getKv: <T extends BaseKv>(codes: string | string[], options?: DataBlocksOptions) => Promise<Record<string, T> | null>
   getAdapterRequest: <T>(opts: AxiosRequestConfig) => Promise<T>
 }
 
@@ -153,7 +190,7 @@ export default class DataBlock implements DataBlocksInterface {
    * @param name {string}
    * @param options {DataBlocksOptions} // 1000 = 1000ms  = 1s ；   //参考 https://day.js.org/docs/en/manipulate/add
    */
-  get = async <T extends BaseT>(codes: string | string[], options?: DataBlocksOptions) => {
+  get = async <T extends BaseBlock | BaseKv>(codes: string | string[], options?: DataBlocksOptions) => {
     if (!codes || !codes.length) {
       throw new Error('Codes can not be null')
     }
@@ -178,8 +215,10 @@ export default class DataBlock implements DataBlocksInterface {
 
     if (keyType === 'block') {
       return distDataBlock<T>(tar, opts)
+    } else if (keyType === 'kv') {
+      return distDataKv<T>(tar, opts)
     }
-    return tar
+    return null
   }
 
   /**
@@ -187,7 +226,7 @@ export default class DataBlock implements DataBlocksInterface {
    * @param name {string}
    * @param options {DataBlocksOptions} // 1000 = 1000ms  = 1s ；   //参考 https://day.js.org/docs/en/manipulate/add
    */
-  getBlock = async <T extends BaseT>(codes: string | string[], options?: DataBlocksOptions) => {
+  getBlock = async <T extends BaseBlock>(codes: string | string[], options?: DataBlocksOptions) => {
     var opt: DataBlocksOptions = { ...options, keyType: 'block' }
     return this.get<T>(codes, opt)
   }
@@ -197,7 +236,7 @@ export default class DataBlock implements DataBlocksInterface {
    * @param name {string}
    * @param options {DataBlocksOptions} // 1000 = 1000ms  = 1s ；   //参考 https://day.js.org/docs/en/manipulate/add
    */
-  getKv = async <T extends BaseT>(codes: string | string[], options?: DataBlocksOptions) => {
+  getKv = async <T extends BaseKv>(codes: string | string[], options?: DataBlocksOptions) => {
     return this.get<T>(codes, { ...options, keyType: 'kv' })
   }
 }
