@@ -133,6 +133,7 @@ export type DataBlocksOptions = Partial<Omit<DataBlocksInterface, 'get' | 'getBl
  * @example
  * ``` js
  *  let dataBlock = new DataBlock({
+ *    api: 'WERTHFVBN',
  *    key: 'WERTHFVBN',
  *    })
  * ```
