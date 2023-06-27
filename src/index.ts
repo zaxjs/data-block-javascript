@@ -121,8 +121,21 @@ export const distDataKv = <T extends TKv>(res: Record<string, T>, opt: Partial<D
 export interface DataBlocksInterface {
   key: string
   api: string
+  /**
+   * show system field
+   */
   showSysField?: boolean
+  /**
+   * show groun info
+   */
   showGroupInfo?: boolean
+  /**
+   * get full of response, priority highest
+   */
+  showRawData?: boolean
+  /**
+   * local server cache time
+   */
   ttl?: `${number}${'d' | 'h' | 'm' | 's'}`
   keyType?: 'kv' | 'block'
   taro?: any
@@ -144,7 +157,7 @@ export type DataBlocksOptions = Partial<Omit<DataBlocksInterface, '_get' | 'getB
  *  let dataBlock = new DataBlock({
  *    api: 'WERTHFVBN',
  *    key: 'WERTHFVBN',
- *    keyType:'block',
+ *    keyType: 'block',
  *    })
  * ```
  */
@@ -153,7 +166,7 @@ export default class DataBlock implements DataBlocksInterface {
   constructor(options: DataBlocksOptions) {
     const { key = '', api = '' } = options
 
-    let defOpt: Partial<DataBlocksInterface> = { showGroupInfo: false, showSysField: false }
+    let defOpt: Partial<DataBlocksInterface> = { showGroupInfo: false, showSysField: false, showRawData: false }
 
     if (!key) {
       /* istanbul ignore next */
@@ -222,7 +235,7 @@ export default class DataBlock implements DataBlocksInterface {
       throw new Error('KeyType can not be null')
     }
     let opts = Object.assign(this, { ...options }) as DataBlocksOptions
-    let { key, api, keyType } = opts
+    let { key, api, showRawData, keyType } = opts
 
     let url = api + '/' + keyType
 
@@ -243,6 +256,10 @@ export default class DataBlock implements DataBlocksInterface {
 
     let tar = axRes.data
 
+    if (showRawData) {
+      return tar
+    }
+
     /* istanbul ignore next */
     if (keyType === 'block') {
       return distDataBlock<T>(tar, opts)
@@ -260,8 +277,7 @@ export default class DataBlock implements DataBlocksInterface {
    * @param options {DataBlocksOptions} // 1000 = 1000ms  = 1s ；   //参考 https://day.js.org/docs/en/manipulate/add
    */
   getBlock = async <T extends TBlock>(codes: string | string[], options?: DataBlocksOptions) => {
-    var opt: DataBlocksOptions = { ...options, keyType: 'block' }
-    return this._get<T>(codes, opt)
+    return this.block<T>(codes, options)
   }
 
   /**
@@ -281,7 +297,7 @@ export default class DataBlock implements DataBlocksInterface {
    * @param options {DataBlocksOptions} // 1000 = 1000ms  = 1s ；   //参考 https://day.js.org/docs/en/manipulate/add
    */
   getKv = async <T extends TKv>(codes: string | string[], options?: DataBlocksOptions) => {
-    return this._get<T>(codes, { ...options, keyType: 'kv' })
+    return this.kv<T>(codes, options)
   }
 
   /**

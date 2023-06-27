@@ -5,9 +5,11 @@ Data block javascript package
 ``` js
 import { DataBlock } from '@zaxjs/data-block'
 
-let dataBlock=new DataBlock({api:"http://localhost:8089/data-block-service-api/v1/open", key:"Y2wwemk4aWtnMDAwMjA4bDQ4c3VrZzB5bA=="}) // 建议配置为全局单例对象
-const resBlock = await dataBlock.getBlock([ "TEST_BLOCK" ], { showSysField: false , ttl: '5m', showGroupInfo:false, }).catch((err) => {
-  console.error('dataBlock.getBlock', [ "TEST_BLOCK" ], err)
+// 建议配置为全局单例对象
+let dataBlock=new DataBlock({api:"http://localhost:8089/data-block-service-api/v1/open", key:"Y2wwemk4aWtnMDAwMjA4bDQ4c3VrZzB5bA=="}) 
+
+const resBlock = await dataBlock.Block([ "TEST_BLOCK" ], { showSysField: false , ttl: '5m', showGroupInfo:false, showRawData:false }).catch((err) => {
+  console.error('dataBlock.block', [ "TEST_BLOCK" ], err)
   throw err
 })
 
@@ -15,8 +17,8 @@ if (resBlock?.length) {
   // code
 }
 
-const resKv = await dataBlock.getKv([ "TEST_BLOCK" ], { showSysField: false , ttl: '5m', showGroupInfo:false, }).catch((err) => {
-  console.error('dataBlock.getKv', [ "TEST_BLOCK" ], err)
+const resKv = await dataBlock.Kv([ "TEST_BLOCK" ], { showSysField: false , ttl: '5m', showGroupInfo:false, showRawData:false }).catch((err) => {
+  console.error('dataBlock.kv', [ "TEST_BLOCK" ], err)
   throw err
 })
 
@@ -35,4 +37,4 @@ if (resKv?.length) {
 
 | Statements                  | Branches                | Functions                 | Lines             |
 | --------------------------- | ----------------------- | ------------------------- | ----------------- |
-| ![Statements](https://img.shields.io/badge/statements-100%25-brightgreen.svg?style=flat) | ![Branches](https://img.shields.io/badge/branches-100%25-brightgreen.svg?style=flat) | ![Functions](https://img.shields.io/badge/functions-100%25-brightgreen.svg?style=flat) | ![Lines](https://img.shields.io/badge/lines-100%25-brightgreen.svg?style=flat) |
+| ![Statements](https://img.shields.io/badge/statements-95.65%25-brightgreen.svg?style=flat) | ![Branches](https://img.shields.io/badge/branches-75%25-red.svg?style=flat) | ![Functions](https://img.shields.io/badge/functions-100%25-brightgreen.svg?style=flat) | ![Lines](https://img.shields.io/badge/lines-95.65%25-brightgreen.svg?style=flat) |

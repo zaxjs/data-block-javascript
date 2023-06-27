@@ -53,7 +53,7 @@ describe('DataBlock/block', () => {
       console.error('dataBlock/block', err)
     })
 
-    await dataBlock.getBlock('TEST_BLOCK').catch((err) => {
+    var res = await dataBlock.getBlock('TEST_BLOCK').catch((err) => {
       console.error('dataBlock/block', err)
     })
 
