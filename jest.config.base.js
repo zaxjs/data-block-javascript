@@ -5,6 +5,7 @@ module.exports = {
   testEnvironment: 'node',
 
   collectCoverage: true,
+  coverageReporters: ['json-summary'],
   coveragePathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/coverage/', '<rootDir>/build/', '<rootDir>/dist/', '<rootDir>/lib/'],
   coverageDirectory: '<rootDir>/coverage/',
   collectCoverageFrom: ['<rootDir>/src/*.{ts,tsx}'],
