@@ -1,4 +1,4 @@
-import { log } from '../_utils/index'
+import { log, deprecated } from '../_utils/index'
 
 describe('log', () => {
   it('should invoke success', () => {

@@ -2,47 +2,92 @@
  * @jest-environment jsdom
  */
 
-jest.setTimeout(30000)
-jest.spyOn(window.localStorage.__proto__, 'setItem')
-window.localStorage.__proto__.setItem = jest.fn()
+import DataBlock from '../src/index'
+import type { DataBlocksInterface } from '../src/index'
 
-const taro = {
-  setStorageSync: () => {
-    return ''
-  },
-  getStorageSync: () => {
-    return ''
-  },
-  removeStorageSync: () => {
-    return ''
-  },
-  clearStorageSync: () => {
-    return ''
-  },
+var dataBlock: DataBlock
+
+const config = {
+  api: 'http://localhost:8089/data-block-service-api/v1/open',
+  key: 'Y2wwemk4aWtnMDAwMjA4bDQ4c3VrZzB5bA==',
 }
 
-import DataBlock from '../src/index'
-let dataBlock: DataBlock = new DataBlock({
-  key: 'test',
-  api: 'local',
-})
-
-describe('Local DataBlock', () => {
-  const key = 'test_key'
-  const val = 'test_val'
-
+describe('DataBlock', () => {
   beforeEach(() => {
     dataBlock = new DataBlock({
-      key: 'test',
-      api: 'local',
+      ...config,
     })
   })
 
-  jest.spyOn(dataBlock, 'get')
+  it('Check member', () => {
+    expect(dataBlock).toBeTruthy()
 
-  let spyGet = jest.spyOn(dataBlock, 'get')
+    expect(dataBlock).toHaveProperty('api')
+    expect(dataBlock).toHaveProperty('key')
 
-  it('called', () => {
-    expect(spyGet).toHaveBeenCalled()
+    expect(dataBlock).toHaveProperty('kv')
+    expect(dataBlock).toHaveProperty('block')
+    expect(dataBlock).toHaveProperty('getBlock')
+    expect(dataBlock).toHaveProperty('getKv')
+
+    expect(dataBlock).toHaveProperty('keyType')
+    expect(dataBlock).toHaveProperty('keyType', undefined)
+  })
+})
+
+describe('DataBlock/block', () => {
+  beforeEach(() => {
+    dataBlock = new DataBlock({
+      ...config,
+    })
+  })
+
+  it('Check invoke', async () => {
+    var spyBlock = jest.spyOn(dataBlock, 'block')
+
+    await dataBlock.block(['TEST_BLOCK', 'TEST_MISC']).catch((err) => {
+      console.error('dataBlock/block', err)
+    })
+
+    await dataBlock.block('TEST_BLOCK').catch((err) => {
+      console.error('dataBlock/block', err)
+    })
+
+    await dataBlock.getBlock('TEST_BLOCK').catch((err) => {
+      console.error('dataBlock/block', err)
+    })
+
+    expect(dataBlock).toHaveProperty('keyType', 'block')
+
+    expect(spyBlock).toHaveBeenCalled()
+  })
+})
+
+describe('DataBlock/kv', () => {
+  beforeEach(() => {
+    dataBlock = new DataBlock({
+      ...config,
+      keyType: 'kv',
+    })
+  })
+
+  it('Check invoke', async () => {
+    var spyKv = jest.spyOn(dataBlock, 'kv')
+
+    await dataBlock.kv(['TEST_KEY', 'TEST_KEY3']).catch((err) => {
+      console.error('dataBlock/kv', err)
+    })
+
+    await dataBlock.kv(['TEST_KEY']).catch((err) => {
+      console.error('dataBlock/kv', err)
+    })
+
+    await dataBlock.getKv(['TEST_KEY']).catch((err) => {
+      console.error('dataBlock/kv', err)
+    })
+
+    expect(dataBlock).toHaveProperty('keyType', 'kv')
+
+    expect(spyKv).toHaveBeenCalled()
   })
 })
