@@ -1,12 +1,10 @@
 /**
  * DataBlock Module
- * @module @zaxjs/data-block
+ * data-block
  * @see https://github.com/zaxjs/data-block-javascript/blob/main/docs/README.md
  */
 
 import { AxiosRequestConfig, AxiosResponse } from 'axios'
-
-const APP_OPEN_KEY = `x-data-block-openkey`
 
 type TKv = {
   k?: string // 核心，误删
@@ -106,6 +104,7 @@ export interface DataBlocksInterface {
   showGroupInfo?: boolean
   /**
    * local server cache time
+   * @see https://day.js.org/docs/en/manipulate/add
    */
   ttl?: `${number}${'d' | 'h' | 'm' | 's'}`
   keyType?: 'kv' | 'block'
@@ -129,59 +128,88 @@ export interface DataBlocksInterface {
 export type DataBlocksOptions = Partial<Omit<DataBlocksInterface, '_get' | 'getBlock' | 'getKv' | 'block' | 'kv' | '_getAdapterRequest'>>
 
 /**
- * Create a DataBlock
+ * DataBlock Module
  * @class
+ * @module DataBlock
  * @example
- * ``` js
+ * ```typescript
  *  let dataBlock = new DataBlock({
  *    api: 'WERTHFVBN',
  *    key: 'WERTHFVBN',
  *    keyType: 'block',
- *    })
+ *  })
  * ```
  */
 export default class DataBlock implements DataBlocksInterface {
-  /* istanbul ignore next */
+  /**
+   * Creates an instance of DataBlock.
+   * @constructor
+   * @param {DataBlocksOptions} options - Options for DataBlock.
+   */
   constructor(options: DataBlocksOptions) {
     const { key = '', api = '' } = options
 
     let defOpt: Partial<DataBlocksInterface> = { showGroupInfo: false, showSysField: false }
 
     if (!key) {
-      /* istanbul ignore next */
-      throw new Error('Key param can not be null')
+      /**
+       * Throws an error if the `key` parameter is null.
+       * @throws Error
+       */
+      throw new Error('Key param cannot be null')
     }
 
     if (!api) {
-      /* istanbul ignore next */
-      throw new Error('Api param can not be null')
+      /**
+       * Throws an error if the `api` parameter is null.
+       * @throws Error
+       */
+      throw new Error('Api param cannot be null')
     }
 
-    // inner method
     this._getAdapterRequest = this._getAdapterRequest.bind(this)
     this._get = this._get.bind(this)
-
-    // open member
     this.block = this.block.bind(this)
     this.kv = this.kv.bind(this)
-
-    // deprecated
     this.getBlock = this.getBlock.bind(this)
     this.getKv = this.getKv.bind(this)
 
     Object.assign(this, { ...defOpt }, { ...options })
   }
+  showSysField?: boolean | undefined
+  showGroupInfo?: boolean | undefined
+  ttl?: `${number}d` | `${number}h` | `${number}m` | `${number}s` | undefined
+
+  /**
+   * The key of the DataBlock.
+   * @member {string}
+   */
   key: string
+
+  /**
+   * The API of the DataBlock.
+   * @member {string}
+   */
   api: string
+
+  /**
+   * The key type of the DataBlock (kv or block).
+   * @member {("kv" | "block")}
+   */
   keyType?: 'kv' | 'block'
+
+  /**
+   * Taro instance (for Taro environments).
+   * @member {any}
+   */
   taro?: any
-  _getAdapterRequest = async <T>(axiosParams: AxiosRequestConfig) => {
-    // 判断是否为小程序环境
+
+  private _getAdapterRequest = async <T>(axiosParams: AxiosRequestConfig) => {
     let data: T
-    /* istanbul ignore next */
+
     if (process?.env?.TARO_ENV && this.taro) {
       // Taro小程序环境
-      let params = { ...axiosParams, header: axiosParams.headers } // 重命名
+      let params = { ...axiosParams, header: axiosParams.headers }
       let res: { data: T } = await this.taro.request(params).catch((err: any) => {
         console.error(err)
         throw err
@@ -200,29 +228,31 @@ export default class DataBlock implements DataBlocksInterface {
   }
 
   /**
-   * 小程序可以直接存、取对象
-   * @param name {string}
-   * @param options {DataBlocksOptions} // 1000 = 1000ms  = 1s ；   //参考 https://day.js.org/docs/en/manipulate/add
+   * Retrieves data from the DataBlock.
+   * @private
+   * @param {string | string[]} codes - Codes to retrieve.
+   * @param {DataBlocksOptions} options - Options for data retrieval.
+   * @returns {Promise<TBlock | TKv | Record<string, TBlock | TKv>>} - Retrieved data.
+   * @throws Error
    */
-  _get = async <T extends TBlock | TKv>(codes: string | string[], options?: DataBlocksOptions) => {
-    /* istanbul ignore next */
+  private _get = async <T extends TBlock | TKv>(codes: string | string[], options?: DataBlocksOptions) => {
+    const APP_OPEN_KEY = `x-data-block-openkey`
     if (!codes || !codes.length) {
-      throw new Error('Codes can not be null')
+      throw new Error('Codes cannot be null')
     }
-    /* istanbul ignore next */
+
     if (!options?.keyType) {
-      throw new Error('KeyType can not be null')
+      throw new Error('KeyType cannot be null')
     }
+
     let opts = Object.assign(this, { ...options }) as DataBlocksOptions
     let { key, api, keyType } = opts
-
     let url = api + '/' + keyType
 
     if (!Array.isArray(codes)) {
       codes = codes.split(',')
     }
 
-    /* istanbul ignore next */
     let requestOptions: AxiosRequestConfig = {
       url: url + '/' + codes.join(','),
       method: 'get',
@@ -232,31 +262,21 @@ export default class DataBlock implements DataBlocksInterface {
     }
 
     let axRes = await this._getAdapterRequest<{ data: Record<string, T> }>(requestOptions)
-
     let tar = axRes.data
 
-    /* istanbul ignore next */
     if (keyType === 'block' || keyType === 'kv') {
       return distData<T>(tar, opts)
     }
-    /* istanbul ignore next */
+
     return tar
   }
 
   /**
-   * 获取Block
-   * @deprecated
-   * @param name {string}
-   * @param options {DataBlocksOptions} // 1000 = 1000ms  = 1s ；   //参考 https://day.js.org/docs/en/manipulate/add
-   */
-  getBlock = async <T extends TBlock>(codes: string | string[], options?: DataBlocksOptions) => {
-    return this.block<T>(codes, options)
-  }
-
-  /**
-   * 获取Block
-   * @param name {string}
-   * @param options {DataBlocksOptions} // 1000 = 1000ms  = 1s ；   //参考 https://day.js.org/docs/en/manipulate/add
+   * Retrieves block data from the DataBlock.
+   * @member {string}
+   * @param {string | string[]} codes - Block codes to retrieve.
+   * @param {DataBlocksOptions} options - Options for block retrieval.
+   * @returns {Promise<Record<string, TBlock> | null>} - Retrieved block data.
    */
   block = async <T extends TBlock>(codes: string | string[], options?: DataBlocksOptions) => {
     var opt: DataBlocksOptions = { ...options, keyType: 'block' }
@@ -264,21 +284,35 @@ export default class DataBlock implements DataBlocksInterface {
   }
 
   /**
-   * 获取Kv
+   * Retrieves block data from the DataBlock. (Deprecated: Use `block` method instead)
    * @deprecated
-   * @param name {string}
-   * @param options {DataBlocksOptions} // 1000 = 1000ms  = 1s ；   //参考 https://day.js.org/docs/en/manipulate/add
+   * @param {string | string[]} codes - Block codes to retrieve.
+   * @param {DataBlocksOptions} options - Options for block retrieval.
+   * @returns {Promise<Record<string, TBlock> | null>} - Retrieved block data.
    */
-  getKv = async <T extends TKv>(codes: string | string[], options?: DataBlocksOptions) => {
-    return this.kv<T>(codes, options)
+  getBlock = async <T extends TBlock>(codes: string | string[], options?: DataBlocksOptions) => {
+    return this.block<T>(codes, options)
   }
 
   /**
-   * 获取Kv
-   * @param name {string}
-   * @param options {DataBlocksOptions} // 1000 = 1000ms  = 1s ；   //参考 https://day.js.org/docs/en/manipulate/add
+   * Retrieves key-value data from the DataBlock.
+   * @member {string}
+   * @param {string | string[]} codes - Key codes to retrieve.
+   * @param {DataBlocksOptions} options - Options for key-value retrieval.
+   * @returns {Promise<Record<string, TKv> | null>} - Retrieved key-value data.
    */
   kv = async <T extends TKv>(codes: string | string[], options?: DataBlocksOptions) => {
     return this._get<T>(codes, { ...options, keyType: 'kv' })
+  }
+
+  /**
+   * Retrieves key-value data from the DataBlock. (Deprecated: Use `kv` method instead)
+   * @deprecated
+   * @param {string | string[]} codes - Key codes to retrieve.
+   * @param {DataBlocksOptions} options - Options for key-value retrieval.
+   * @returns {Promise<Record<string, TKv> | null>} - Retrieved key-value data.
+   */
+  getKv = async <T extends TKv>(codes: string | string[], options?: DataBlocksOptions) => {
+    return this.kv<T>(codes, options)
   }
 }
