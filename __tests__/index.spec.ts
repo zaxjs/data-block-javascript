@@ -8,7 +8,7 @@ import type { DataBlocksInterface } from '../src/index'
 var dataBlock: DataBlock
 
 const config = {
-  api: 'http://localhost:8089/data-block-service-api/v1/open',
+  api: 'https://abyss-pre.zan.fun/data-block-service-api/v1/open',
   key: 'Y2wwemk4aWtnMDAwMjA4bDQ4c3VrZzB5bA==',
 }
 

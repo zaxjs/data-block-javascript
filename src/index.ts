@@ -37,6 +37,7 @@ type TBlock = {
   spaceId?: any
   modelCode?: any
   blockCode?: string
+
   blockData?: {
     id?: string
     cid?: string
@@ -46,10 +47,11 @@ type TBlock = {
   }[]
   slugs?: any
   syncAt?: any
+  description?: any
 }
 
 /* istanbul ignore next */
-export const distDataBlock = <T extends TBlock>(res: Record<string, T>, opt: Partial<DataBlocksOptions>): Record<string, T> => {
+export const distData = <T extends TBlock>(res: Record<string, T>, opt: Partial<DataBlocksOptions>): Record<string, T> => {
   let { showSysField, showGroupInfo } = opt
 
   var resAll = Object.values(res)
@@ -73,6 +75,7 @@ export const distDataBlock = <T extends TBlock>(res: Record<string, T>, opt: Par
       delete sub?.spaceId
       delete sub?.modelCode
       delete sub?.syncAt
+      delete sub?.description
     }
     if (!showGroupInfo) {
       // 不展示组信息，则只需要data
@@ -82,36 +85,6 @@ export const distDataBlock = <T extends TBlock>(res: Record<string, T>, opt: Par
         })
         sub.blockData = cleanData as any
       }
-    }
-  })
-
-  return res
-}
-
-/* istanbul ignore next */
-export const distDataKv = <T extends TKv>(res: Record<string, T>, opt: Partial<DataBlocksOptions>): Record<string, T> => {
-  let { showSysField } = opt
-
-  if (!res) {
-    console.log('Pass nothing')
-    return null as any
-  }
-
-  var resAll = Object.values(res)
-  // 应用类型，源数据一并delete
-
-  resAll.map((item) => {
-    if (!showSysField) {
-      delete item?.blockStatus
-      delete item?.sysId
-      delete item?.createdBy
-      delete item?.createdAt
-      delete item?.updatedBy
-      delete item?.updatedAt
-      delete item?.publishedBy
-      delete item?.publishedAt
-      delete item?.description
-      delete item?.syncAt
     }
   })
 
@@ -130,17 +103,21 @@ export interface DataBlocksInterface {
    */
   showGroupInfo?: boolean
   /**
-   * get full of response, priority highest
-   */
-  showRawData?: boolean
-  /**
    * local server cache time
    */
   ttl?: `${number}${'d' | 'h' | 'm' | 's'}`
   keyType?: 'kv' | 'block'
   taro?: any
+  /**
+   * 获取Kv
+   * @deprecated
+   */
   getBlock: <T extends TBlock>(codes: string | string[], options?: DataBlocksOptions) => Promise<Record<string, T> | null>
   block: <T extends TBlock>(codes: string | string[], options?: DataBlocksOptions) => Promise<Record<string, T> | null>
+  /**
+   * 获取Kv
+   * @deprecated
+   */
   getKv: <T extends TKv>(codes: string | string[], options?: DataBlocksOptions) => Promise<Record<string, T> | null>
   kv: <T extends TKv>(codes: string | string[], options?: DataBlocksOptions) => Promise<Record<string, T> | null>
   _get: <T extends TBlock | TKv>(codes: string | string[], options?: DataBlocksOptions) => Promise<Record<string, T> | null>
@@ -166,7 +143,7 @@ export default class DataBlock implements DataBlocksInterface {
   constructor(options: DataBlocksOptions) {
     const { key = '', api = '' } = options
 
-    let defOpt: Partial<DataBlocksInterface> = { showGroupInfo: false, showSysField: false, showRawData: false }
+    let defOpt: Partial<DataBlocksInterface> = { showGroupInfo: false, showSysField: false }
 
     if (!key) {
       /* istanbul ignore next */
@@ -235,7 +212,7 @@ export default class DataBlock implements DataBlocksInterface {
       throw new Error('KeyType can not be null')
     }
     let opts = Object.assign(this, { ...options }) as DataBlocksOptions
-    let { key, api, showRawData, keyType } = opts
+    let { key, api, keyType } = opts
 
     let url = api + '/' + keyType
 
@@ -256,18 +233,12 @@ export default class DataBlock implements DataBlocksInterface {
 
     let tar = axRes.data
 
-    if (showRawData) {
-      return tar
-    }
-
     /* istanbul ignore next */
-    if (keyType === 'block') {
-      return distDataBlock<T>(tar, opts)
-    } else if (keyType === 'kv') {
-      return distDataKv<T>(tar, opts)
+    if (keyType === 'block' || keyType === 'kv') {
+      return distData<T>(tar, opts)
     }
     /* istanbul ignore next */
-    return null
+    return tar
   }
 
   /**
