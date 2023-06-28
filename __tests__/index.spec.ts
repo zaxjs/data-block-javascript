@@ -47,15 +47,23 @@ describe('DataBlock/block', () => {
 
     await dataBlock.block(['TEST_BLOCK', 'TEST_MISC']).catch((err) => {
       console.error('dataBlock/block', err)
+      throw err
     })
 
     await dataBlock.block('TEST_BLOCK').catch((err) => {
       console.error('dataBlock/block', err)
+      throw err
     })
 
     var res = await dataBlock.getBlock('TEST_BLOCK').catch((err) => {
       console.error('dataBlock/block', err)
+      throw err
     })
+
+    expect(res).toBeTruthy()
+    expect(res).toBeInstanceOf(Object)
+    expect(res['TEST_BLOCK'].blockCode).toEqual('TEST_BLOCK')
+    expect(res['TEST_BLOCK'].blockData).toBeInstanceOf(Object)
 
     expect(dataBlock).toHaveProperty('keyType', 'block')
 
@@ -76,15 +84,23 @@ describe('DataBlock/kv', () => {
 
     await dataBlock.kv(['TEST_KEY', 'TEST_KEY3']).catch((err) => {
       console.error('dataBlock/kv', err)
+      throw err
     })
 
     await dataBlock.kv(['TEST_KEY']).catch((err) => {
       console.error('dataBlock/kv', err)
+      throw err
     })
 
-    await dataBlock.getKv(['TEST_KEY']).catch((err) => {
+    var res = await dataBlock.getKv(['TEST_KEY']).catch((err) => {
       console.error('dataBlock/kv', err)
+      throw err
     })
+
+    expect(res).toBeTruthy()
+    expect(res).toBeInstanceOf(Object)
+    expect(res['TEST_KEY'].k).toEqual('TEST_KEY')
+    expect(res['TEST_KEY'].v).toBeInstanceOf(Object)
 
     expect(dataBlock).toHaveProperty('keyType', 'kv')
 

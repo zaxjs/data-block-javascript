@@ -9,6 +9,8 @@ import { AxiosRequestConfig, AxiosResponse } from 'axios'
 const APP_OPEN_KEY = `x-data-block-openkey`
 
 type TKv = {
+  k?: string // 核心，误删
+  v?: any // 核心，误删
   blockStatus?: any
   sysId?: any
   createdBy?: any
